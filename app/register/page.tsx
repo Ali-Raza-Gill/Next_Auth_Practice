@@ -1,6 +1,12 @@
+"use client";
+
 import React from "react";
-import Signup from "../(components)/signUp/SignUp";
+import SignUp from "../(components)/signUp/SignUp";
 
 export default function Register() {
-  return <Signup />;
+  return (
+    <div>
+      <SignUp />
+    </div>
+  );
 }
