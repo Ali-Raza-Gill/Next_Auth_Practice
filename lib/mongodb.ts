@@ -5,7 +5,9 @@ const connectDb = async () => {
     .connect(process.env.MOBGODB_URI!, {
       tls: true,
     })
-    .then(() => console.log("Connected successfully"))
+    .then(() => {
+      console.log("Connected successfully"), alert("Connected successfully");
+    })
     .catch((err) => console.log(err));
 };
 

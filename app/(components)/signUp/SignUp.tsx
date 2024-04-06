@@ -1,5 +1,10 @@
+"use client";
+import axios from "axios";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // useRouter  from "next/router";
 import React, { FormEvent, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function SignUp() {
   const [name, setName] = useState("");
@@ -7,32 +12,59 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const router = useRouter();
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
-    if (!name || !email || !password) {
-      setError("All fields are required");
-      return;
-    }
-
     try {
-      const res = await fetch("api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+      const res = await axios.post("api/register", {
+        email,
+        password,
       });
-      if (res.ok) {
-        setName("");
-        setEmail("");
-        setPassword("");
-      } else {
-        console.log("User registration failed");
-      }
-    } catch (error) {
-      console.error("Error occurred while user registration");
+
+      await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+      toast.success("User created successfully");
+
+      router.push("/");
+      // const res = await fetch("api/register", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     name,
+      //     email,
+      //     password,
+      //   }),
+      // });
+      // console.log(res);
+    } catch (error: any) {
+      console.log("error", error);
+      toast.error(error?.response?.data);
     }
   };
-
+  // const submitfrom = async (e: any) => {
+  //   e.preventDefault();
+  //   try {
+  //     const res = await fetch("api/register", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         name,
+  //         email,
+  //         password,
+  //       }),
+  //     });
+  //     console.log(res);
+  //   } catch (error) {
+  //     console.log("error", error);
+  //   }
+  // };
   return (
     <div className="bg-white">
       <div className="text-white-500 text-md flex justify-center items-center gap-10 font-bold p-10 ">

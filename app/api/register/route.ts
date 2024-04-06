@@ -1,66 +1,31 @@
-// import { NextResponse } from "next/server";
-// import { connectDB } from "../../../lib/mongodb";
-// import User from "@/models/user";
-
-import connectDb from "@/lib/mongodb";
-import User from "@/models/user";
+import { NextResponse } from "next/server";
+import prismadb from "@/lib/prismadb";
 import bcrypt from "bcryptjs";
-
-import { NextRequest, NextResponse } from "next/server";
-
-// export async function POST(req: any) {
-//   try {
-//     const { name, email, password } = await req.json();
-//     const hasedPassword = await bcrypt.hash(password, 12);
-
-//     await connectDB();
-//     await User.create({ name, email, password: hasedPassword });
-
-//     return NextResponse.json(
-//       { message: "User Registerd Successfully" },
-//       { status: 201 }
-//     );
-//   } catch (error) {
-//     return NextResponse.json(
-//       { message: "Error occured while user registering account" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-// import { NextRequest, NextResponse } from "next/server";
-// import { connectDB } from "../../../lib/mongodb";
-// import User from "@/models/user";
-// import bcrypt from "bcryptjs";
-
-// export async function POST(req: NextRequest) {
-//   try {
-//     const { name, email, password } = await req.json();
-//     const hashedPassword = await bcrypt.hash(password, 12);
-
-//     await connectDB();
-//     await User.create({ name, email, password: hashedPassword });
-
-//     return NextResponse.json(
-//       { message: "sucessfully registered" },
-//       { status: 201 }
-//     );
-//   } catch (error) {
-//     NextResponse.json({ error: "error" });
-//   }
-// }
-
-export const POST = async (req: NextRequest) => {
+export async function POST(req: Request) {
   try {
-    const { name, email, password } = await req.json();
-    const hashedPassword = await bcrypt.hash(password, 8);
-    await connectDb();
-    await User.create({ name, email, password: hashedPassword });
-    return NextResponse.json(
-      { message: "sucessfully registered" },
-      { status: 201 }
-    );
-  } catch (error) {
-    NextResponse.json({ error: "error" });
+    const body = await req.json();
+    const { email, password } = body;
+    if (!email || !password) {
+      return new NextResponse("Missing data", { status: 500 });
+    }
+    const userAlreadyExist = await prismadb.user1.findFirst({
+      where: {
+        email: email,
+      },
+    });
+    if (userAlreadyExist?.id) {
+      return new NextResponse("User already exist", { status: 500 });
+    }
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const newUser = await prismadb.user1.create({
+      data: {
+        email: email,
+        hashedPassword: hashedPassword,
+      },
+    });
+    return NextResponse.json(newUser);
+  } catch (err: any) {
+    console.log("REGISTER_ERR: " + err);
+    return new NextResponse(err, { status: 500 });
   }
-};
+}

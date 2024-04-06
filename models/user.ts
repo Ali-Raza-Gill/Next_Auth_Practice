@@ -3,18 +3,18 @@ import mongoose, { Schema } from "mongoose";
 const userScheme = new Schema(
   {
     name: {
-      required: [true, "please a enter a name"],
+      required: true,
       type: Schema.Types.String,
     },
     email: {
-      required: [true, "please a enter a email"],
+      required: true,
       type: Schema.Types.String,
     },
     password: {
       types: Schema.Types.String,
     },
   },
-  { timestamps: true, versionKey: false }
+  { timestamps: true }
 );
 const User = mongoose.models.User || mongoose.model("User", userScheme);
 export default User;
